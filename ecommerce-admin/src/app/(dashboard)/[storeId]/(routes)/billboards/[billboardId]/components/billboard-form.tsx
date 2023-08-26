@@ -3,7 +3,7 @@ import * as z from "zod";
 import { FC, useState } from "react";
 import { Billboard } from "@prisma/client";
 import { Trash } from "lucide-react";
-import { set, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-hot-toast";
 import { useParams, useRouter } from "next/navigation";
@@ -21,8 +21,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { AlertModal } from "@/components/modals/alert-modal";
-import { ApiAlert } from "@/components/ui/api-alert";
-import { useOrigin } from "@/hooks/use-origin";
 import ImageUpload from "@/components/ui/image-upload";
 
 const formSchema = z.object({
@@ -38,7 +36,6 @@ interface BillboardFormProps {
 export const BillboardForm: FC<BillboardFormProps> = ({ initialData }) => {
   const params = useParams();
   const router = useRouter();
-  const origin = useOrigin();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -61,13 +58,18 @@ export const BillboardForm: FC<BillboardFormProps> = ({ initialData }) => {
     try {
       setLoading(true);
       if (initialData) {
+        console.log(params);
         await fetch(`/api/${params.storeId}/billboards/${params.billboardId}`, {
           method: "PATCH",
           body: JSON.stringify(data),
         });
       } else {
+        console.log("requesting from form create");
         await fetch(`/api/${params.storeId}/billboards`, {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(data),
         });
       }
